@@ -4,17 +4,13 @@ import seaborn as sns
 import numpy as np
 from scipy.stats import pearsonr
 
-# Chargement des données
 data = pd.read_csv('data1.csv')
 
-# Sélection des variables météo
 variables = ['Minimum_temperature', 'Maximum_temperature', 'Rainfall', 'Sunshine_duration']
 data_meteo = data[variables + ['City']]
 
-# 1. Calcul de la matrice de corrélation
 corr_matrix = data_meteo[variables].corr()
 
-# 2. Identification des paires de variables
 correlations = []
 for i in range(len(variables)):
     for j in range(i+1, len(variables)):
@@ -23,15 +19,12 @@ for i in range(len(variables)):
         r_value = corr_matrix.loc[var1, var2]
         correlations.append((var1, var2, r_value))
 
-# Tri des corrélations
 corr_sorted = sorted(correlations, key=lambda x: abs(x[2]), reverse=True)
 
-# 3. Extraction des résultats demandés
 most_positive = max(correlations, key=lambda x: x[2])
 most_negative = min(correlations, key=lambda x: x[2])
 least_correlated = min(correlations, key=lambda x: abs(x[2]))
 
-# 4. Affichage des résultats
 print("Résultats des corrélations:")
 print("="*50)
 print(f"1. Variables les plus positivement corrélées: {most_positive[0]} et {most_positive[1]}")
@@ -43,25 +36,21 @@ print(f"   Coefficient de corrélation: {most_negative[2]:.3f}\n")
 print(f"3. Variables les moins corrélées: {least_correlated[0]} et {least_correlated[1]}")
 print(f"   Coefficient de corrélation: {least_correlated[2]:.3f}")
 
-# 5. Visualisation
 def plot_correlation(var1, var2, title, r_value):
     plt.figure(figsize=(10, 6))
     sns.scatterplot(data=data_meteo, x=var1, y=var2, color='blue', alpha=0.7)
-    
-    # Ajout des noms des villes
+
     for i in range(len(data_meteo)):
         plt.text(data_meteo[var1].iloc[i], 
                  data_meteo[var2].iloc[i], 
                  data_meteo['City'].iloc[i],
                  fontsize=8, ha='center', va='bottom')
-    
-    # Ajout de la ligne de régression
+
     sns.regplot(data=data_meteo, x=var1, y=var2, 
                scatter=False, color='red', ci=None)
     
     plt.title(f"{title}\nCoefficient de corrélation: {r_value:.3f}")
-    
-    # Ajout des unités aux axes
+
     units = {'Minimum_temperature': '°C', 
              'Maximum_temperature': '°C',
              'Rainfall': 'mm',
@@ -73,7 +62,6 @@ def plot_correlation(var1, var2, title, r_value):
     plt.tight_layout()
     plt.show()
 
-# 6. Génération des 3 graphiques
 print("\nVisualisations:")
 print("="*50)
 plot_correlation(most_positive[0], most_positive[1], 

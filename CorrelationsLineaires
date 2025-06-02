@@ -3,22 +3,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-# Chargement et préparation des données
 data = pd.read_csv('data1.csv')
 variables = ['Minimum_temperature', 'Maximum_temperature', 'Rainfall', 'Sunshine_duration']
-data_std = (data[variables] - data[variables].mean()) / data[variables].std()  # Standardisation
+data_std = (data[variables] - data[variables].mean()) / data[variables].std()
 data_std['City'] = data['City']
 
-# Matrice de corrélation améliorée
 corr_ville = data_std.set_index('City').T.corr()
 
-# Fonction pour obtenir les paires uniques
 def get_unique_pairs(corr_matrix):
     corr = corr_matrix.stack()
     corr.index = corr.index.map(lambda x: tuple(sorted(x)))
     return corr[corr.index.map(lambda x: x[0] != x[1])].drop_duplicates()
 
-# Analyse des corrélations
 unique_corr = get_unique_pairs(corr_ville)
 
 print("3 paires de villes les plus similaires:")
@@ -26,7 +22,6 @@ print(unique_corr.sort_values(ascending=False).head(3))
 print("\n3 paires de villes les plus opposées:")
 print(unique_corr.sort_values().head(3))
 
-# Visualisation
 plt.figure(figsize=(15, 12))
 mask = np.triu(np.ones_like(corr_ville, dtype=bool))
 sns.heatmap(corr_ville, mask=mask, cmap='coolwarm', center=0,

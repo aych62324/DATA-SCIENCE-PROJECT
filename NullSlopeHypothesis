@@ -3,32 +3,24 @@ import numpy as np
 import statsmodels.api as sm
 from scipy import stats
 
-# Load and prepare the data
 data = pd.read_csv('data2.csv')
 data_2024 = data[data['Year'] == 2024].copy()
 
-# Create month_ID (0-11)
 month_order = ['january', 'february', 'march', 'april', 'may', 'june', 
                'july', 'august', 'september', 'october', 'november', 'december']
 data_2024['month_ID'] = data_2024['Month'].apply(lambda x: month_order.index(x))
 
-# Using optimal n=12 from question 12
 X = data_2024['month_ID'].values.reshape(-1, 1)
 y = data_2024['Maximum_temperature'].values
 
-# Add constant for intercept
 X = sm.add_constant(X)
 
-# Fit OLS model
 model = sm.OLS(y, X).fit()
 
-# Get the p-value for β1 (slope)
 p_value = model.pvalues[1]  # [q14a]
 
-# Determine if significant at α=5%
-significant = "yes" if p_value < 0.05 else "no"  # [q14b]
+significant = "yes" if p_value < 0.05 else "no"
 
-# Print results
 print("=== Question 14 Results ===")
 print(f"p-value for β1: {p_value:.6f}")
 print(f"Significant linear relationship (α=5%): {significant}")

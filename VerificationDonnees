@@ -2,18 +2,15 @@ import pandas as pd
 
 def analyser_donnees_meteo(fichier='data1.csv'):
 
-    # Charger les données
     try:
         df = pd.read_csv(fichier)
     except FileNotFoundError:
         print(f"Erreur: Le fichier {fichier} n'a pas été trouvé dans le dossier courant.")
         return None
-    
-    # 1. Nombre de villes
+
     nombre_villes = df.shape[0]
     print(f"Nombre de villes dans le dataset : {nombre_villes}")
-    
-    # 2. Données manquantes
+
     donnees_manquantes = df.isnull().sum()
     villes_avec_manques = df[df.isnull().any(axis=1)]
     

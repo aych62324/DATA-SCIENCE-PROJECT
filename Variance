@@ -1,9 +1,7 @@
 import pandas as pd
 
-# Charger les données
 data = pd.read_csv('data1.csv')
 
-# Dictionnaire des unités pour chaque variable
 unites = {
     'Minimum_temperature': '°C',
     'Maximum_temperature': '°C',
@@ -11,7 +9,6 @@ unites = {
     'Sunshine_duration': 'heures'
 }
 
-# Calcul des variances avec unités
 variances = {
     "Variance de la température minimale": {
         'valeur': data['Minimum_temperature'].var(),
@@ -31,17 +28,15 @@ variances = {
     }
 }
 
-# Affichage détaillé avec unités
 print("ANALYSE DE VARIANCE AVEC UNITÉS")
 print("="*45 + "\n")
 
 for variable, result in variances.items():
     print(f"{variable}:")
-    print(f"- Valeur: {result['valeur']:.2f} {result['unité']}²")  # Variance = unité au carré
+    print(f"- Valeur: {result['valeur']:.2f} {result['unité']}²")
     print(f"- Interprétation: {'Variabilité élevée' if result['valeur'] > 100 else 'Variabilité modérée'}")
     print("\n" + "-"*45)
 
-# Affichage sous forme de tableau
 print("\nRÉCAPITULATIF (variance en unités carrées)")
 print("-"*45)
 df = pd.DataFrame.from_dict({

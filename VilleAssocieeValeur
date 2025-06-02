@@ -1,9 +1,7 @@
 import pandas as pd
 
-# Charger les données
 data = pd.read_csv('data1.csv')
 
-# Dictionnaire des unités
 unites = {
     'Minimum_temperature': '°C',
     'Maximum_temperature': '°C',
@@ -11,7 +9,6 @@ unites = {
     'Sunshine_duration': 'heures'
 }
 
-# Trouver les valeurs extrêmes et les villes associées
 resultats = {
     "Température minimale la plus basse": ('Minimum_temperature', 'idxmin'),
     "Température minimale la plus haute": ('Minimum_temperature', 'idxmax'),
@@ -23,7 +20,6 @@ resultats = {
     "Ensoleillement le plus fort": ('Sunshine_duration', 'idxmax')
 }
 
-# Afficher les résultats avec formatage
 print("\nANALYSE MÉTÉOROLOGIQUE - VALEURS EXTRÊMES")
 print("="*50 + "\n")
 

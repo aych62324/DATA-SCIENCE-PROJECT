@@ -1,19 +1,15 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Load the data
 data2 = pd.read_csv('data2.csv')
 
-# Filter for 2024 data
 data_2024 = data2[data2['Year'] == 2024]
 
-# Convert month names to numerical values for proper ordering
 month_order = ['january', 'february', 'march', 'april', 'may', 'june', 
                'july', 'august', 'september', 'october', 'november', 'december']
 data_2024['Month'] = pd.Categorical(data_2024['Month'], categories=month_order, ordered=True)
 data_2024 = data_2024.sort_values('Month')
 
-# Plot the temperature evolution
 plt.figure(figsize=(10, 6))
 plt.plot(data_2024['Month'], data_2024['Maximum_temperature'], marker='o', color='b')
 plt.title('Evolution of Maximum Temperature in Paris (2024)')
@@ -23,12 +19,10 @@ plt.grid(True)
 plt.xticks(rotation=45)
 plt.tight_layout()
 
-# Add data labels
 for i, temp in enumerate(data_2024['Maximum_temperature']):
     plt.text(i, temp+0.5, f'{temp}°C', ha='center')
 
 plt.show()
 
-# Display the temperature values
 print("Maximum Temperatures in Paris (2024):")
 print(data_2024[['Month', 'Maximum_temperature']].reset_index(drop=True))
