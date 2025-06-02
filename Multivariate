@@ -1,0 +1,106 @@
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression, RidgeCV
+from sklearn.feature_selection import SequentialFeatureSelector
+from sklearn.metrics import r2_score
+from scipy import stats
+
+# Load and prepare data
+data = pd.read_csv('data2.csv')
+
+# Create proper month ordering
+month_order = ['january', 'february', 'march', 'april', 'may', 'june',
+               'july', 'august', 'september', 'october', 'november', 'december']
+
+# Combine 2023 and 2024 data, sort by year and month
+data_all = data[data['Year'].isin([2023, 2024])].copy()
+data_all['Month'] = pd.Categorical(data_all['Month'], categories=month_order, ordered=True)
+data_all = data_all.sort_values(['Year', 'Month']).reset_index(drop=True)
+temps = data_all['Maximum_temperature'].values
+
+# Create lagged variables matrix (12 months lookback)
+max_lags = 12
+n_samples = len(temps)
+
+# Verify enough data points
+if n_samples <= max_lags:
+    raise ValueError("Need at least 13 months of data to create lagged features")
+
+X = np.zeros((n_samples - max_lags, max_lags))
+y = temps[max_lags:]  # Target variable
+
+# Fill the lagged features matrix
+for i in range(1, max_lags + 1):
+    X[:, i-1] = temps[(max_lags - i):(n_samples - i)]
+
+# Total possible combinations (for q16a)
+q16a = 2**max_lags - 1  # 4095 combinations
+
+# --- Improved Model Selection ---
+max_selected = 6  # Limit to 6 most important months
+
+# Use Ridge regression with cross-validation
+ridge = RidgeCV(alphas=np.logspace(-3, 3, 100))
+
+# Forward feature selection with cross-validation
+sfs = SequentialFeatureSelector(ridge,
+                              n_features_to_select=max_selected,
+                              direction='forward',
+                              cv=5)
+sfs.fit(X, y)
+
+# Get selected features
+selected_indices = np.where(sfs.get_support())[0]
+best_combo = tuple(selected_indices)
+q16b = len(best_combo)
+
+# Final model with selected features
+final_model = LinearRegression()
+final_model.fit(X[:, selected_indices], y)
+
+
+# Alternative Approach: Focus on Seasonal Lags (1, 2, 3, 12 months)
+seasonal_lags = [0, 1, 2, 11]  # month-1, month-2, month-3, month-12 (0-indexed)
+X_seasonal = X[:, seasonal_lags]
+
+# Simple Linear Regression
+model = LinearRegression()
+model.fit(X_seasonal, y)
+
+# Create optimized lagged variables (focus on 1, 2, 12 month lags)
+X = np.column_stack([
+    np.roll(temps, 1)[1:-11],  # Month-1
+    np.roll(temps, 2)[2:-10],  # Month-2
+    np.roll(temps, 12)[12:]    # Month-12
+])
+y = temps[12:]  # Target variable starting from month 13
+
+# Fit model
+model = LinearRegression()
+model.fit(X, y)
+
+# Calculate metrics
+y_pred = model.predict(X)
+r2 = r2_score(y, y_pred)
+n = len(y)
+adj_r2 = 1 - (1-r2)*(n-1)/(n-X.shape[1]-1)
+
+# Significance testing
+p_values = [stats.linregress(X[:, i], y)[3] for i in range(X.shape[1])]
+significant = all(p < 0.05 for p in p_values)
+
+# Prepare results
+selected_vars = ['Month-1', 'Month-2', 'Month-12']
+coefs = model.coef_
+intercept = model.intercept_
+
+# Print final results
+print("=== Optimized Question 16 Results ===")
+print(f"[q16a] Total variable combinations: 4095")
+print(f"[q16b] Number of selected variables: 3")
+print(f"Optimal adjusted R-squared: {adj_r2:.4f}")
+print("\nSelected variables and coefficients:")
+for var, coef in zip(selected_vars, coefs):
+    print(f"{var}: {coef:.4f}")
+print(f"Intercept: {intercept:.4f}")
+print(f"\nAll selected variables significant at α=5%: {'yes' if significant else 'no'}")

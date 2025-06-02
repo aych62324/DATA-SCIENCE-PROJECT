@@ -1,0 +1,42 @@
+import pandas as pd
+
+# Charger les données
+data = pd.read_csv('data1.csv')
+
+# Dictionnaire des unités
+unites = {
+    'Minimum_temperature': '°C',
+    'Maximum_temperature': '°C',
+    'Rainfall': 'mm',
+    'Sunshine_duration': 'heures'
+}
+
+# Trouver les valeurs extrêmes et les villes associées
+resultats = {
+    "Température minimale la plus basse": ('Minimum_temperature', 'idxmin'),
+    "Température minimale la plus haute": ('Minimum_temperature', 'idxmax'),
+    "Température maximale la plus basse": ('Maximum_temperature', 'idxmin'),
+    "Température maximale la plus haute": ('Maximum_temperature', 'idxmax'),
+    "Précipitations les plus faibles": ('Rainfall', 'idxmin'),
+    "Précipitations les plus fortes": ('Rainfall', 'idxmax'),
+    "Ensoleillement le plus faible": ('Sunshine_duration', 'idxmin'),
+    "Ensoleillement le plus fort": ('Sunshine_duration', 'idxmax')
+}
+
+# Afficher les résultats avec formatage
+print("\nANALYSE MÉTÉOROLOGIQUE - VALEURS EXTRÊMES")
+print("="*50 + "\n")
+
+for description, (colonne, operation) in resultats.items():
+    if operation == 'idxmin':
+        ville_data = data.loc[data[colonne].idxmin()]
+    else:
+        ville_data = data.loc[data[colonne].idxmax()]
+    
+    valeur = ville_data[colonne]
+    unite = unites[colonne]
+    
+    print(f"{description.upper()}:")
+    print(f"- Ville: {ville_data['City']}")
+    print(f"- Valeur: {valeur} {unite}\n")
+    print("-"*50)
